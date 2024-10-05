@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Calculator for RoK (Multiple Accounts)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .account {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+        }
+
+        .account h3 {
+            font-size: 22px;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e9f7ef;
+            color: #2d7d46;
+            border: 1px solid #2ecc71;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .total {
+            font-size: 22px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .add-account-btn {
+            background-color: #28a745;
+        }
+
+        .add-account-btn:hover {
+            background-color: #218838;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>RoK Resource Calculator</h2>
+        
+        <!-- Account container -->
+        <div id="accounts-container">
+            <div class="account" id="account-1">
+                <h3>Account 1</h3>
+                <label for="food-1">Food (Lương thực, triệu đơn vị):</label>
+                <input type="number" id="food-1" placeholder="Nhập số lượng lương thực (triệu)"><br>
+                <label for="wood-1">Wood (Gỗ, triệu đơn vị):</label>
+                <input type="number" id="wood-1" placeholder="Nhập số lượng gỗ (triệu)"><br>
+                <label for="stone-1">Stone (Đá, triệu đơn vị):</label>
+                <input type="number" id="stone-1" placeholder="Nhập số lượng đá (triệu)"><br>
+                <label for="gold-1">Gold (Vàng, triệu đơn vị):</label>
+                <input type="number" id="gold-1" placeholder="Nhập số lượng vàng (triệu)"><br>
+
+                <!-- Select Warehouse Level for Account 1 -->
+                <label for="warehouse-level-1">Warehouse Level (Cấp độ nhà kho):</label>
+                <select id="warehouse-level-1">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select><br>
+
+                <!-- Select Market Level for Tax for Account 1 -->
+                <label for="market-level-1">Alliance Market Level (Cấp độ trạm dịch vụ):</label>
+                <select id="market-level-1">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select><br>
+            </div>
+        </div>
+
+        <button class="add-account-btn" onclick="addAccount()">Add Another Account</button><br>
+        <button onclick="calculate()">Calculate Total</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <div class="footer">
+        &copy; 2024 Resource Calculator - RoK
+    </div>
+
+    <script>
+        let accountCounter = 1; // Initialize account counter
+
+        // Data for warehouse protection at different levels (in millions)
+        const warehouseProtection = {
+            1: { food: 0.01, wood: 0.01, stone: 0.008, gold: 0.006 },
+            5: { food: 0.05, wood: 0.05, stone: 0.04, gold: 0.03 },
+            10: { food: 0.1, wood: 0.1, stone: 0.08, gold: 0.06 },
+            15: { food: 0.5, wood: 0.5, stone: 0.4, gold: 0.3 },
+            20: { food: 1, wood: 1, stone: 0.8, gold: 0.6 },
+            25: { food: 3, wood: 3, stone: 2.4, gold: 1.8 }
+        };
+
+        // Data for tax percentage at different market levels
+        const marketTax = {
+            1: 30,   // 30% tax at level 1
+            5: 25,   // 25% tax at level 5
+            10: 20,  // 20% tax at level 10
+            15: 15,  // 15% tax at level 15
+            20: 10,  // 10% tax at level 20
+            25: 5    // 5% tax at level 25
+        };
+
+        // Add another account form dynamically
+        function addAccount() {
+            accountCounter++;
+            const accountContainer = document.createElement('div');
+            accountContainer.classList.add('account');
+            accountContainer.setAttribute('id', `account-${accountCounter}`);
+            accountContainer.innerHTML = `
+                <h3>Account ${accountCounter} <span class="remove-btn" onclick="removeAccount(${accountCounter})">Remove</span></h3>
+                <label for="food-${accountCounter}">Food (Lương thực, triệu đơn vị):</label>
+                <input type="number" id="food-${accountCounter}" placeholder="Nhập số lượng lương thực (triệu)"><br>
+                <label for="wood-${accountCounter}">Wood (Gỗ, triệu đơn vị):</label>
+                <input type="number" id="wood-${accountCounter}" placeholder="Nhập số lượng gỗ (triệu)"><br>
+                <label for="stone-${accountCounter}">Stone (Đá, triệu đơn vị):</label>
+                <input type="number" id="stone-${accountCounter}" placeholder="Nhập số lượng đá (triệu)"><br>
+                <label for="gold-${accountCounter}">Gold (Vàng, triệu đơn vị):</label>
+                <input type="number" id="gold-${accountCounter}" placeholder="Nhập số lượng vàng (triệu)"><br>
+                <label for="warehouse-level-${accountCounter}">Warehouse Level (Cấp độ nhà kho):</label>
+                <select id="warehouse-level-${accountCounter}">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select><br>
+                <label for="market-level-${accountCounter}">Alliance Market Level (Cấp độ trạm dịch vụ):</label>
+                <select id="market-level-${accountCounter}">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select><br>
+            `;
+            document.getElementById('accounts-container').appendChild(accountContainer);
+        }
+
+        // Remove account form
+        function removeAccount(accountId) {
+            const account = document.getElementById(`account-${accountId}`);
+            account.remove();
+        }
+
+        // Calculate total resources after protection and tax
+        function calculate() {
+            let totalFood = 0, totalWood = 0, totalStone = 0, totalGold = 0;
+
+            for (let i = 1; i <= accountCounter; i++) {
+                const food = parseFloat(document.getElementById(`food-${i}`)?.value) || 0;
+                const wood = parseFloat(document.getElementById(`wood-${i}`)?.value) || 0;
+                const stone = parseFloat(document.getElementById(`stone-${i}`)?.value) || 0;
+                const gold = parseFloat(document.getElementById(`gold-${i}`)?.value) || 0;
+                const warehouseLevel = parseInt(document.getElementById(`warehouse-level-${i}`)?.value);
+                const marketLevel = parseInt(document.getElementById(`market-level-${i}`)?.value);
+
+                // Get the warehouse protection based on level (in millions)
+                const warehouseProtect = warehouseProtection[warehouseLevel];
+
+                // Calculate the resources after warehouse protection
+                const foodAfterProtect = Math.max(food - warehouseProtect.food, 0);
+                const woodAfterProtect = Math.max(wood - warehouseProtect.wood, 0);
+                const stoneAfterProtect = Math.max(stone - warehouseProtect.stone, 0);
+                const goldAfterProtect = Math.max(gold - warehouseProtect.gold, 0);
+
+                // Get the tax rate based on market level
+                const taxRate = marketTax[marketLevel] / 100;
+
+                // Calculate the tax on remaining resources (in millions)
+                totalFood += foodAfterProtect - (foodAfterProtect * taxRate);
+                totalWood += woodAfterProtect - (woodAfterProtect * taxRate);
+                totalStone += stoneAfterProtect - (stoneAfterProtect * taxRate);
+                totalGold += goldAfterProtect - (goldAfterProtect * taxRate);
+            }
+
+            // Display the result (in millions)
+            document.getElementById('result').innerHTML = `
+                <h3>Total Resources After Tax and Protection (Triệu đơn vị):</h3>
+                <p class="total">Total Food: ${totalFood.toFixed(3)} triệu</p>
+                <p class="total">Total Wood: ${totalWood.toFixed(3)} triệu</p>
+                <p class="total">Total Stone: ${totalStone.toFixed(3)} triệu</p>
+                <p class="total">Total Gold: ${totalGold.toFixed(3)} triệu</p>
+            `;
+        }
+    </script>
+
+</body>
+</html>

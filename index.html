@@ -145,13 +145,13 @@
                 <!-- Select Warehouse Level for Account 1 -->
                 <label for="warehouse-level-1">Warehouse Level (Cấp độ nhà kho):</label>
                 <select id="warehouse-level-1">
-                    ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                    <!-- Dropdown options will be populated by JavaScript -->
                 </select><br>
 
                 <!-- Select Market Level for Tax for Account 1 -->
                 <label for="market-level-1">Alliance Market Level (Cấp độ trạm dịch vụ):</label>
                 <select id="market-level-1">
-                    ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                    <!-- Dropdown options will be populated by JavaScript -->
                 </select><br>
             </div>
         </div>
@@ -227,6 +227,18 @@
             25: 140
         };
 
+        // Function to populate warehouse and market level options
+        function populateOptions() {
+            const warehouseSelects = document.querySelectorAll('[id^="warehouse-level-"]');
+            const marketSelects = document.querySelectorAll('[id^="market-level-"]');
+
+            const warehouseOptions = Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+            const marketOptions = Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+
+            warehouseSelects.forEach(select => select.innerHTML = warehouseOptions);
+            marketSelects.forEach(select => select.innerHTML = marketOptions);
+        }
+
         // Function to add a new account form
         function addAccount() {
             accountCounter++;
@@ -245,22 +257,13 @@
                 <input type="number" id="gold-${accountCounter}" placeholder="Nhập số lượng vàng (triệu)"><br>
                 
                 <label for="warehouse-level-${accountCounter}">Warehouse Level (Cấp độ nhà kho):</label>
-                <select id="warehouse-level-${accountCounter}">
-                    ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
-                </select><br>
+                <select id="warehouse-level-${accountCounter}"></select><br>
 
                 <label for="market-level-${accountCounter}">Alliance Market Level (Cấp độ trạm dịch vụ):</label>
-                <select id="market-level-${accountCounter}">
-                    ${Array.from({length: 25}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
-                </select><br>
+                <select id="market-level-${accountCounter}"></select><br>
             `;
             document.getElementById('accounts-container').appendChild(accountContainer);
-        }
-
-        // Remove account form
-        function removeAccount(accountId) {
-            const account = document.getElementById(`account-${accountId}`);
-            account.remove();
+            populateOptions(); // Call to populate options for new account
         }
 
         // Calculate total resources after protection and tax
@@ -303,6 +306,9 @@
                 <p class="total">Total Gold: ${totalGold.toFixed(3)} triệu</p>
             `;
         }
+
+        // Initial population of options
+        populateOptions();
     </script>
 
 </body>
